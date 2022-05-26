@@ -1,2 +1,2 @@
 # dice
-Online Poker Dice
+Online Dice
