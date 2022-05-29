@@ -1,0 +1,8 @@
+black
+Django
+Faker
+ipython
+isort
+pip-tools
+pre-commit
+psycopg2
