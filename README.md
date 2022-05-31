@@ -1,2 +1,3 @@
 # dice
-Online Dice
+
+Generala/Yatchzee/Poker Dice

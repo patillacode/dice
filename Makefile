@@ -20,3 +20,21 @@ run:
 	@echo 'Running server ...'
 	. venv/bin/activate && \
 	python manage.py runserver
+
+tailwind:
+	@echo 'Running tailwind ...'
+	. venv/bin/activate && \
+	python manage.py tailwind start
+
+reset-db:
+	. venv/bin/activate && \
+	dropdb dicedb && \
+	createdb dicedb && \
+	rm -rf game/migrations/*.py && \
+	python manage.py migrate && \
+	export DJANGO_SUPERUSER_PASSWORD='admin' && \
+	export DJANGO_SUPERUSER_USERNAME='admin' && \
+	export DJANGO_SUPERUSER_EMAIL='admin@admin.com' && \
+	python manage.py createsuperuser --noinput && \
+	python manage.py makemigrations game && \
+	python manage.py migrate

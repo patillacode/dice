@@ -1,19 +1,9 @@
-# from datetime import datetime
-
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from faker import Faker
-
-fake = Faker(['en_US', 'es_ES'])
-
-
-class Die(models.Model):
-    pass
-
 
 class Player(models.Model):
-    name = models.CharField(max_length=32, default=fake.first_name())
+    name = models.CharField(max_length=32)
 
     def __str__(self):
         return self.name
@@ -21,18 +11,17 @@ class Player(models.Model):
 
 class Score(models.Model):
     player = models.ForeignKey('Player', on_delete=models.CASCADE, related_name='scores')
-    game = models.ForeignKey('Game', on_delete=models.CASCADE, related_name='scores')
     points = models.IntegerField(validators=[MinValueValidator(0)])
 
     def __str__(self):
-        return f'{self.player.name} {self.points} ({self.game})'
+        return f'{self.player.name} - {self.points}'
 
 
 class Game(models.Model):
-    players = models.ManyToManyField(Player, related_name='matches')
-    # scores = models.ManyToManyField(Score, related_name='matches')
-    start_at = models.DateTimeField(auto_now_add=True)
-    finish_at = models.DateTimeField(null=True, blank=True)
+    players = models.ManyToManyField(Player, related_name='games')
+    scores = models.ManyToManyField(Score, related_name='game')
+    started_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
 
     @property
     def name(self):
@@ -41,12 +30,11 @@ class Game(models.Model):
     def __str__(self):
         return self.name
 
-    @property
-    def duration(self):
-        if not self.finish_at:
+    def calculate_duration(self):
+        if not self.finished_at:
             return None, None
 
-        delta = self.finish_at - self.start_at
+        delta = self.finished_at - self.started_at
 
         minutes = delta.total_seconds() / 60
         hours = delta.total_seconds() / 60 / 60
@@ -54,19 +42,14 @@ class Game(models.Model):
         value, unit = delta.total_seconds(), 'seconds'
 
         if minutes > 60:
-            value, unit = hours, 'hours'
+            value, unit = round(hours, 2), 'hours'
 
         elif delta.total_seconds() > 60:
-            value, unit = minutes, 'minutes'
+            value, unit = round(minutes, 2), 'minutes'
 
         return value, unit
 
     @property
-    def duration_unit(self):
-        _, unit = self.duration
-        return unit
-
-    @property
-    def duration_value(self):
-        value, _ = self.duration
-        return value
+    def duration(self):
+        value, unit = self.calculate_duration()
+        return f'{value} {unit}'

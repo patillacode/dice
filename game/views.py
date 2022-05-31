@@ -1,5 +1,11 @@
-from django.http import HttpResponse
+from django.shortcuts import render
 
 
 def index(request):
-    return HttpResponse('Hello, world. You\'re at the Dice index.')
+    return render(request, 'base.html')
+
+
+def game(request):
+    # context = {'game_id': game.id}
+    context = {}
+    return render(request, 'game.html', context)
